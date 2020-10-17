@@ -1,0 +1,29 @@
+﻿@page "/"
+
+<h3>Blazor Drag and Drop, created with https://github.com/Postlagerkarte/blazor-dragdrop</h3>
+
+<div id="main" class="container-fluid">
+
+    <input placeholder="Something todo" @bind="newTodo" />
+    <button @onclick="AddTodo" class="btn btn-success">Add</button>
+
+    <hr />
+
+    <Dropzone Items="MyToDoList" OnItemDrop="(TodoItem item)=>ItemDropped(item)">
+        <Todo OnRemoveClick="(item)=>MyToDoList.Remove(item)" Item="@context"></Todo>
+    </Dropzone>
+
+    <hr />
+
+    <button @onclick="Save" class="btn btn-primary">Save</button>
+
+    <ul>
+        @foreach (var item in MyToDoList)
+        {
+          <li>
+            @item.Title
+          </li>
+        }
+    </ul>
+
+</div>
