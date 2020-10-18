@@ -1,0 +1,27 @@
+﻿@using BlazorDragAndDrop.Models
+
+<b>Section</b>
+<div style="padding: 10px; border: 1px solid blue;">
+    <button @onclick="@(()=> OnRemoveClick.InvokeAsync(Model))" class="btn btn-secondary m-1">
+        <span class="oi oi-trash"></span>
+    </button>
+
+    <label>Title:</label>
+    <input placeholder="Section name...." @bind="Model.Title" />
+
+    <hr />
+
+    <button @onclick="AddSection" class="btn btn-success">Add (sub) Section</button>
+
+    <Dropzone Items="Model.Sections ?? new List<SectionModel>()">
+        <Section OnRemoveClick="(s)=>Model.Sections.Remove(s)" Model="@context"></Section>
+    </Dropzone>
+
+    <Dropzone Items="Model.Questions ?? new List<QuestionModel>()">
+        <Question OnRemoveClick="(q)=>Model.Questions.Remove(q)" Model="@context"></Question>
+    </Dropzone>
+
+    <hr />
+
+    <button @onclick="AddQuestion" class="btn btn-success">Add Question</button>
+</div>

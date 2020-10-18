@@ -1,0 +1,19 @@
+﻿@using BlazorDragAndDrop.Models
+
+<b>Question</b>
+<div style="padding: 10px; border: 1px solid blue;">
+    <button @onclick="@(()=> OnRemoveClick.InvokeAsync(Model))" class="btn btn-secondary m-1">
+        <span class="oi oi-trash"></span>
+    </button>
+
+    <label>Vraag:</label>
+    <input placeholder="What is???" @bind="Model.Text" />
+</div>
+
+@code {
+    [Parameter]
+    public QuestionModel Model { get; set; }
+
+    [Parameter]
+    public EventCallback<QuestionModel> OnRemoveClick { get; set; }
+}
