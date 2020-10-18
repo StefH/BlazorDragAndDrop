@@ -183,5 +183,6 @@ app {
 }
 
 .plk-dd-inprogess > * {
+    background-color: azure;
     pointer-events: none;
 }
