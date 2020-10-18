@@ -13,11 +13,11 @@
 
     <button @onclick="AddSection" class="btn btn-success">Add (sub) Section</button>
 
-    <Dropzone Items="Model.Sections ?? new List<SectionModel>()">
+    <Dropzone Items="Model.Sections">
         <Section OnRemoveClick="(s)=>Model.Sections.Remove(s)" Model="@context"></Section>
     </Dropzone>
 
-    <Dropzone Items="Model.Questions ?? new List<QuestionModel>()">
+    <Dropzone Items="Model.Questions">
         <Question OnRemoveClick="(q)=>Model.Questions.Remove(q)" Model="@context"></Question>
     </Dropzone>
 
