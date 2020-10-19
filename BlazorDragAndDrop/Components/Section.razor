@@ -1,5 +1,5 @@
-﻿<b>Section</b>
-<div style="padding: 10px; border: 1px solid blue;">
+﻿<b>@Model.SectionType</b>
+<div style="padding: 10px; border: 1px solid @(Model.SectionType == SectionType.Section ? "blue" : "red");">
     <button @onclick="@(()=> OnRemoveClick.InvokeAsync(Model))" class="btn btn-secondary btn-sm">
         <span class="oi oi-trash"></span>
     </button>
