@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using BlazorDragAndDrop.Models;
 using Microsoft.AspNetCore.Components;
@@ -15,6 +14,7 @@ namespace BlazorDragAndDrop.Pages
             {
                 new SectionModel
                 {
+                    SectionType = SectionType.Section,
                     Title ="first section",
                     Questions = new List<QuestionModel>
                     {
@@ -30,11 +30,13 @@ namespace BlazorDragAndDrop.Pages
                 },
                 new SectionModel
                 {
+                    SectionType = SectionType.Section,
                     Title ="second section with nested",
                     Sections = new List<SectionModel>
                     {
                         new SectionModel
                         {
+                            SectionType = SectionType.SubSection,
                             Title = "nested first",
                             Questions = new List<QuestionModel>
                             {
@@ -53,6 +55,7 @@ namespace BlazorDragAndDrop.Pages
         {
             var newSection = new SectionModel
             {
+                SectionType = SectionType.Section,
                 Title = "section title...",
                 Questions = new List<QuestionModel>
                 {

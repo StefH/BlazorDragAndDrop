@@ -9,11 +9,14 @@
 
     <hr />
 
-    <button @onclick="AddSection" class="btn btn-success btn-sm">Add (sub) Section</button>
+    @if (Model.SectionType == SectionType.Section)
+    {
+        <button @onclick="AddSection" class="btn btn-success btn-sm">Add (sub) Section</button>
 
-    <Dropzone Items="Model.Sections" DropzoneGroupId="sectionSectionsGroup">
-        <Section OnRemoveClick="(s)=>Model.Sections.Remove(s)" Model="@context"></Section>
-    </Dropzone>
+        <Dropzone Items="Model.Sections" DropzoneGroupId="sectionSectionsGroup">
+            <Section OnRemoveClick="(s) => Model.Sections.Remove(s)" Model="@context" SectionType="SectionType.SubSection"></Section>
+        </Dropzone>
+    }
 
     <Dropzone Items="Model.Questions" DropzoneGroupId="sectionQuestionsGroup" InstantReplace="true">
         <Question OnRemoveClick="(q)=>Model.Questions.Remove(q)" Model="@context"></Question>

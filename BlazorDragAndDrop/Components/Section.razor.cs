@@ -7,6 +7,9 @@ namespace BlazorDragAndDrop.Components
     public partial class Section : ComponentBase
     {
         [Parameter]
+        public SectionType SectionType { get; set; }
+
+        [Parameter]
         public SectionModel Model { get; set; }
 
         [Parameter]
@@ -16,6 +19,7 @@ namespace BlazorDragAndDrop.Components
         {
             var newSection = new SectionModel
             {
+                SectionType = SectionType.SubSection,
                 Title = "section title...",
                 Questions = new List<QuestionModel>
                 {
