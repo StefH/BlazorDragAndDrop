@@ -1,8 +1,6 @@
-﻿@using BlazorDragAndDrop.Models
-
-<b>Section</b>
+﻿<b>Section</b>
 <div style="padding: 10px; border: 1px solid blue;">
-    <button @onclick="@(()=> OnRemoveClick.InvokeAsync(Model))" class="btn btn-secondary m-1 btn-sm">
+    <button @onclick="@(()=> OnRemoveClick.InvokeAsync(Model))" class="btn btn-secondary btn-sm">
         <span class="oi oi-trash"></span>
     </button>
 
@@ -17,7 +15,7 @@
         <Section OnRemoveClick="(s)=>Model.Sections.Remove(s)" Model="@context"></Section>
     </Dropzone>
 
-    <Dropzone Items="Model.Questions" DropzoneGroupId="sectionQuestionsGroup">
+    <Dropzone Items="Model.Questions" DropzoneGroupId="sectionQuestionsGroup" InstantReplace="true">
         <Question OnRemoveClick="(q)=>Model.Questions.Remove(q)" Model="@context"></Question>
     </Dropzone>
 

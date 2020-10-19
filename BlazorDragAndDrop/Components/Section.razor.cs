@@ -1,4 +1,5 @@
-﻿using BlazorDragAndDrop.Models;
+﻿using System.Collections.Generic;
+using BlazorDragAndDrop.Models;
 using Microsoft.AspNetCore.Components;
 
 namespace BlazorDragAndDrop.Components
@@ -15,7 +16,14 @@ namespace BlazorDragAndDrop.Components
         {
             var newSection = new SectionModel
             {
-                Title = "section title..."
+                Title = "section title...",
+                Questions = new List<QuestionModel>
+                {
+                    new QuestionModel
+                    {
+                        Text = "place holder question 1..."
+                    }
+                }
             };
 
             Model.Sections.Add(newSection);
