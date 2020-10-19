@@ -1,0 +1,271 @@
+﻿@typeparam TItem
+@inject Services.DragDropService<TItem> DragDropService
+@inject Services.DropzoneGroupService GroupService
+@using System.Text
+@implements IDisposable
+
+<div class="@GetClassesForDropzone()" @ondragover:preventDefault @ondragover="()=> { }" @ondragenter:preventDefault @ondragenter="()=> { }" style="@DropzoneStyle" @ondrop="() => CurrentState.OnDrop()" @ondrop:preventDefault ondragstart="event.dataTransfer.setData('text', event.target.id);">
+
+    @foreach (var item in Items)
+    {
+
+        if (Items.IndexOf(item) == 0 && MaxItems == null || MaxItems > 1)
+        {
+            <div @ondrop="()=>CurrentState.OnDropItemOnSpacing(0)" @ondrop:stopPropagation @ondragenter="()=>CurrentState.OnSpacingDragEnter(0)" @ondragleave="() => CurrentState.OnSpacingDragLeave()" class="@GetClassesForSpacing(0)"></div>
+        }
+
+        <div draggable="true"
+             @ondragstart="()=>CurrentState.OnDragStart(item)"
+             @ondragend="() => CurrentState.OnDragEnd()"
+             @ondragenter="()=>CurrentState.OnDragEnter(item)"
+             @ondragleave="() => CurrentState.OnDragLeave()"
+             class="@GetClassesForDraggable() @CheckIfItemIsInTransit(item) @CheckIfItemIsDragTarget(item) @CheckIfDragOperationIsInProgess()">
+
+            @{
+                if (ChildContent != null)
+                {
+                    @ChildContent(item);
+                }
+            }
+
+        </div>
+
+        @if (MaxItems == null || MaxItems > 1)
+        {
+            <div @ondrop="()=>CurrentState.OnDropItemOnSpacing(Items.IndexOf(item)+1)" @ondrop:stopPropagation @ondragenter="()=>CurrentState.OnSpacingDragEnter(Items.IndexOf(item)+1)" @ondragleave="() => CurrentState.OnSpacingDragLeave()" class="@CheckIfDragOperationIsInProgess() @GetClassesForSpacing(Items.IndexOf(item)+1)"></div>
+        }
+    }
+
+</div>
+
+@code {
+    [Parameter]
+    public string DropzoneStyle { get; set; }
+
+    [Parameter]
+    public string DropzoneGroupId { get; set; }
+
+    private TItem dragTargetItem;
+
+    private DropzoneState CurrentState { get; set; }
+
+    private bool ChangingStateManually { get; set; } = false;
+
+    private void ChangeState(DropzoneState newState)
+    {
+        CurrentState = newState;
+    }
+
+    private bool IsMaxItemLimitReached()
+    {
+        var activeItem = DragDropService.ActiveItem;
+
+        return (!Items.Contains(activeItem) && MaxItems.HasValue && MaxItems == Items.Count());
+    }
+
+    private bool IsItemAccepted()
+    {
+        if (Accepts == null) return true;
+
+        return Accepts(DragDropService.ActiveItem);
+    }
+
+    private bool IsValidItem()
+    {
+        return DragDropService.ActiveItem != null && GroupService.CurrentDragItemGroupId == this.DropzoneGroupId;
+    }
+
+    protected override bool ShouldRender() => CurrentState.ShouldRender;
+
+    private void ForceRender(object sender, EventArgs e)
+    {
+        StateHasChanged();
+    }
+
+    protected override void OnInitialized()
+    {
+        CurrentState = new DefaultState(this);
+
+        DragDropService.StateHasChanged += ForceRender;
+        GroupService.OnGroupSet += OnGroupSet;
+        GroupService.OnGroupUnset += OnGroupUnset;
+
+        base.OnInitialized();
+    }
+
+    public string CheckIfDragOperationIsInProgess()
+    {
+        var activeItem = DragDropService.ActiveItem;
+
+        return activeItem == null ? "" : "plk-dd-inprogess";
+    }
+
+    public string CheckIfItemIsInTransit(TItem item)
+    {
+        return item.Equals(DragDropService.ActiveItem) && GroupService.CurrentDragItemGroupId == this.DropzoneGroupId ? "plk-dd-in-transit no-pointer-events" : "";
+    }
+
+    public string CheckIfItemIsDragTarget(TItem item)
+    {
+        if (item.Equals(DragDropService.ActiveItem)) return "";
+
+        return item.Equals(dragTargetItem) ? "plk-dd-dragged-over" : "";
+    }
+
+    private string GetClassesForDraggable()
+    {
+        var builder = new StringBuilder();
+
+        builder.Append("plk-dd-draggable");
+
+        if (!String.IsNullOrEmpty(ItemWrapperClass))
+        {
+            builder.AppendLine(" " + ItemWrapperClass);
+        }
+
+        return builder.ToString();
+    }
+
+    private string GetClassesForDropzone()
+    {
+        var builder = new StringBuilder();
+
+        builder.Append("plk-dd-dropzone");
+
+        if (!String.IsNullOrEmpty(Class))
+        {
+            builder.AppendLine(" " + Class);
+        }
+
+        return builder.ToString();
+    }
+
+    private string GetClassesForSpacing(int spacerId)
+    {
+        var builder = new StringBuilder();
+
+        builder.Append("plk-dd-spacing");
+
+        if (GroupService.CurrentDragItemGroupId != this.DropzoneGroupId)
+        {
+            return builder.ToString();
+        }
+
+        //if active space id and item is from another dropzone -> always create insert space
+        if (DragDropService.ActiveSpacerId == spacerId && Items.IndexOf(DragDropService.ActiveItem) == -1)
+        {
+            builder.Append(" plk-dd-spacing-dragged-over");
+        } // else -> check if active space id and that it is an item that needs space
+        else if (DragDropService.ActiveSpacerId == spacerId && (spacerId != Items.IndexOf(DragDropService.ActiveItem)) && (spacerId != Items.IndexOf(DragDropService.ActiveItem) + 1))
+        {
+            builder.Append(" plk-dd-spacing-dragged-over");
+        }
+
+        return builder.ToString();
+    }
+
+    /// <summary>
+    /// Allows to pass a delegate which executes if something is dropped and decides if the item is accepted
+    /// </summary>
+    [Parameter] public Func<TItem, bool> Accepts { get; set; }
+
+    /// <summary>
+    /// Raises a callback with the dropped item as parameter in case the item can not be dropped due to the given Accept Delegate
+    /// </summary>
+    [Parameter] public EventCallback<TItem> OnItemDropRejected { get; set; }
+
+    /// <summary>
+    /// Raises a callback with the dropped item as parameter
+    /// </summary>
+    [Parameter] public EventCallback<TItem> OnItemDrop { get; set; }
+
+    /// <summary>
+    /// If set to true, items will we be swapped/inserted instantly.
+    /// </summary>
+    [Parameter] public bool InstantReplace { get; set; }
+
+    /// <summary>
+    /// List of items for the dropzone
+    /// </summary>
+    [Parameter] public IList<TItem> Items { get; set; }
+
+    /// <summary>
+    /// Maximum Number of items which can be dropped in this dropzone. Defaults to null which means unlimited.
+    /// </summary>
+    [Parameter] public int? MaxItems { get; set; }
+
+    /// <summary>
+    /// Raises a callback with the dropped item as parameter in case the item can not be dropped due to item limit.
+    /// </summary>
+    [Parameter] public EventCallback<TItem> OnItemDropRejectedByMaxItemLimit { get; set; }
+
+    [Parameter] public RenderFragment<TItem> ChildContent { get; set; }
+
+    /// <summary>
+    /// Specifies one or more classnames for the Dropzone element.
+    /// </summary>
+    [Parameter] public string Class { get; set; }
+
+    /// <summary>
+    /// Specifies the id for the Dropzone element.
+    /// </summary>
+    [Parameter] public string Id { get; set; }
+
+    /// <summary>
+    /// Specifies one or more classnames for the draggable div that wraps your elements.
+    /// </summary>
+    [Parameter] public string ItemWrapperClass { get; set; }
+
+    /// <summary>
+    /// If set items dropped are copied to this dropzone and are not removed from their source.
+    /// </summary>
+    [Parameter] public Func<TItem, TItem> CopyItem { get; set; }
+
+    private void Swap(TItem draggedOverItem, TItem activeItem)
+    {
+        var indexDraggedOverItem = Items.IndexOf((TItem)draggedOverItem);
+
+        var indexActiveItem = Items.IndexOf((TItem)activeItem);
+
+        if (indexActiveItem == -1) // item is new to the dropzone
+        {
+            indexActiveItem = DragDropService.Items.IndexOf((TItem)activeItem);
+
+            Items[indexDraggedOverItem] = activeItem;
+
+            DragDropService.Items[indexActiveItem] = draggedOverItem;
+        }
+        else //swap the items
+        {
+            if (indexDraggedOverItem == indexActiveItem) return;
+
+            Items[indexDraggedOverItem] = activeItem;
+
+            Items[indexActiveItem] = draggedOverItem;
+        }
+    }
+
+    // TODO: Visually show the groups into which the current dragged object can be moved
+    public void OnGroupSet(string groupId)
+    {
+        if (IsValidItem() && ChangingStateManually == false)
+        {
+            ChangeState(new AvailableForDropState(this));
+        }
+    }
+
+    public void OnGroupUnset(string groupId)
+    {
+        if (CurrentState.IsDefaultState == false && ChangingStateManually == false)
+        {
+            ChangeState(new DefaultState(this));
+        }
+    }
+
+    public void Dispose()
+    {
+        DragDropService.StateHasChanged -= ForceRender;
+        GroupService.OnGroupSet -= OnGroupSet;
+        GroupService.OnGroupUnset -= OnGroupUnset;
+    }
+}

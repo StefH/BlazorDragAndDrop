@@ -1,23 +1,23 @@
 ﻿@page "/form"
 
-<div id="form" class="container-fluid">
+<div id="form" class="container-fluid" scale="80%">
 
     <label>Form Name:</label>
     <input placeholder="Form name..." @bind="MyForm.Name" />
 
     <hr />
 
-    <button @onclick="AddSection" class="btn btn-success">Add Section</button>
+    <button @onclick="AddSection" class="btn btn-success btn-sm">Add Section</button>
 
     <hr />
 
-    <Dropzone Items="MyForm.Sections" OnItemDrop="(SectionModel s)=>SectionDropped(s)">
+    <Dropzone Items="MyForm.Sections" DropzoneGroupId="formSectionsGroup" OnItemDrop="(SectionModel s)=>SectionDropped(s)">
         <Section OnRemoveClick="(s)=>MyForm.Sections.Remove(s)" Model="@context"></Section>
     </Dropzone>
 
     <hr />
 
-    <button @onclick="Save" class="btn btn-primary">Save</button>
+    <button @onclick="Save" class="btn btn-primary btn-sm">Save</button>
 
     <ul>
         @foreach (var s in MyForm.Sections)

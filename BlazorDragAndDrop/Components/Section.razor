@@ -2,7 +2,7 @@
 
 <b>Section</b>
 <div style="padding: 10px; border: 1px solid blue;">
-    <button @onclick="@(()=> OnRemoveClick.InvokeAsync(Model))" class="btn btn-secondary m-1">
+    <button @onclick="@(()=> OnRemoveClick.InvokeAsync(Model))" class="btn btn-secondary m-1 btn-sm">
         <span class="oi oi-trash"></span>
     </button>
 
@@ -11,13 +11,13 @@
 
     <hr />
 
-    <button @onclick="AddSection" class="btn btn-success">Add (sub) Section</button>
+    <button @onclick="AddSection" class="btn btn-success btn-sm">Add (sub) Section</button>
 
-    <Dropzone Items="Model.Sections">
+    <Dropzone Items="Model.Sections" DropzoneGroupId="sectionSectionsGroup">
         <Section OnRemoveClick="(s)=>Model.Sections.Remove(s)" Model="@context"></Section>
     </Dropzone>
 
-    <Dropzone Items="Model.Questions">
+    <Dropzone Items="Model.Questions" DropzoneGroupId="sectionQuestionsGroup">
         <Question OnRemoveClick="(q)=>Model.Questions.Remove(q)" Model="@context"></Question>
     </Dropzone>
 
