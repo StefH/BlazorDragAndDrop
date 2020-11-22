@@ -7,10 +7,18 @@
     </button>
 
     <label>Vraag:</label>
+    <select @bind="Model.QuestionType">
+        @foreach (var item in Enum.GetValues(typeof(QuestionType)).Cast<QuestionType>())
+        {
+            <option value="@item">@item.ToString()</option>
+        }
+    </select>
+
     <input placeholder="What is???" @bind="Model.Text" />
+    <input placeholder="Other..." @bind="Model.Other" disabled="@(Model.QuestionType != QuestionType.Other)" />
 </div>
 
-@code { 
+@code {
     [Parameter]
     public QuestionModel Model { get; set; }
 
